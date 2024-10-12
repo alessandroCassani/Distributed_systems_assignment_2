@@ -2,9 +2,9 @@ import socket
 from sys import argv
 from threading import Thread, Lock
 
-NUM_USERS_COUNTER = 0
 NUM_USERS_COMMAND = "num_users"
 lock = Lock()
+user_counter = 0
 
 
 def handle_client(conn, addr):
@@ -13,14 +13,12 @@ def handle_client(conn, addr):
         while True:
             data = conn.recv(1024)
             print(f"Received: {data.decode()}")
-            if data == b"exit":
+            if data == b"end":
                 break
             conn.sendall(data)
         print("Closing connection to {addr}")
      
-    lock.acquire() 
-    NUM_USERS_COUNTER = NUM_USERS_COUNTER - 1
-    lock.release()
+    remove_client()
         
         
 def server_operator():
@@ -31,7 +29,7 @@ def server_operator():
             raise ValueError
     
         if command == NUM_USERS_COMMAND:
-            print(f"number of users currently connected: {NUM_USERS_COUNTER}")
+            print(f"number of users currently connected: {user_counter}")
     
 
 def main():
@@ -45,17 +43,26 @@ def main():
         print(f"Server started on port {port}")
         print("Waiting for a client...")
         s.listen()
-        Thread(target=server_operator).start()
+        Thread(target=server_operator, args =()).start()
         while True:
             try:
                 conn, addr = s.accept()
-                lock.acquire()
-                NUM_USERS_COUNTER = NUM_USERS_COUNTER + 1
-                lock.release()
+                add_client()
                 Thread(target=handle_client, args=(conn, addr)).start()
             except KeyboardInterrupt:
                 break
 
+def add_client():
+    global user_counter
+    lock.acquire()
+    user_counter += 1
+    lock.release()
 
+def remove_client():
+    global user_counter
+    lock.acquire()
+    user_counter -= 1
+    lock.release()
+    
 if __name__ == "__main__":
     main()
