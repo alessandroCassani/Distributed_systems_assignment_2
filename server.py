@@ -29,7 +29,7 @@ def server_operator():
             raise ValueError
     
         if command == NUM_USERS_COMMAND:
-            print(f"number of users currently connected: {user_counter}")
+            print(f"number of users currently connected: {get_clients_number()}")
     
 
 def main():
@@ -63,6 +63,10 @@ def remove_client():
     lock.acquire()
     user_counter -= 1
     lock.release()
+    
+def get_clients_number():
+    global user_counter
+    return user_counter
     
 if __name__ == "__main__":
     main()
