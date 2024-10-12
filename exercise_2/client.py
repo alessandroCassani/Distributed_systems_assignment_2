@@ -1,5 +1,6 @@
 import socket
 from sys import argv
+import object_pb2
 
 
 def main():

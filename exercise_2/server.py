@@ -1,6 +1,7 @@
 import socket
 from sys import argv
 from threading import Thread
+import object_pb2
 
 
 def handle_client(conn, addr):
