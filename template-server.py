@@ -1,6 +1,10 @@
 import socket
 from sys import argv
-from threading import Thread
+from threading import Thread, Lock
+
+NUM_USERS_COUNTER = 0
+NUM_USERS_COMMAND = "num_users"
+lock = Lock()
 
 
 def handle_client(conn, addr):
@@ -13,7 +17,22 @@ def handle_client(conn, addr):
                 break
             conn.sendall(data)
         print("Closing connection to {addr}")
-
+     
+    lock.acquire() 
+    NUM_USERS_COUNTER = NUM_USERS_COUNTER - 1
+    lock.release()
+        
+        
+def server_operator():
+    while True:
+        try:
+            command = input("enter 'num_users' to visualize how many clients are currently connected \n")
+        except:
+            raise ValueError
+    
+        if command == NUM_USERS_COMMAND:
+            print(f"number of users currently connected: {NUM_USERS_COUNTER}")
+    
 
 def main():
     try:
@@ -26,9 +45,13 @@ def main():
         print(f"Server started on port {port}")
         print("Waiting for a client...")
         s.listen()
+        Thread(target=server_operator).start()
         while True:
             try:
                 conn, addr = s.accept()
+                lock.acquire()
+                NUM_USERS_COUNTER = NUM_USERS_COUNTER + 1
+                lock.release()
                 Thread(target=handle_client, args=(conn, addr)).start()
             except KeyboardInterrupt:
                 break
