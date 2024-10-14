@@ -44,7 +44,7 @@ def main():
             if data.msg == "end":
                 break
             
-            msg = Message_pb2.Message()
+            msg = Message_pb2.Object()
             response = s.recv(1024)
             msg.ParseFromString(response)
             print(f"Received: {msg}")
