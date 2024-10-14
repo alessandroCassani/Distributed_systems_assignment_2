@@ -1,27 +1,13 @@
 import socket
 from sys import argv
 from threading import Thread, Lock
+import Message_pb2
 
 NUM_USERS_COMMAND = "num_users"
 lock = Lock()
 user_counter = 0
+id = 0
 
-
-def handle_client(conn, addr):
-    add_client()
-    with conn:
-        print(f"Connected by {addr}")
-        while True:
-            data = conn.recv(1024)
-            print(f"Received: {data.decode()}")
-            if data == b"end":
-                break
-            conn.sendall(data)
-        print("Closing connection to {addr}")
-     
-    remove_client()
-        
-        
 def server_operator():
     while True:
         try:
@@ -31,7 +17,39 @@ def server_operator():
     
         if command == NUM_USERS_COMMAND:
             print(f"number of users currently connected: {get_clients_number()}")
+
+def handle_client(conn, addr):
+    try:
+        id_client = add_client()
     
+        with conn:
+            print(f"Connected by {addr}")
+            
+            handshake = create_handshake_message(id_client)
+            serialized_handshake_message = handshake.SerializeToString()
+            conn.sendall(serialized_handshake_message)
+        
+            while True:
+                object = Message_pb2.Object()
+                data = conn.recv(1024)
+                object.ParseFromString(data)
+                print(f"Received: {object}")
+                
+                if object.msg == b"end":
+                    break
+                
+                conn.sendall(object.SerializeToString())
+            print("Closing connection to {addr}")
+            
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        handshake_response = Message_pb2.Handshake()
+        handshake_response.error = True
+        conn.sendall(handshake_response.SerializeToString())
+        
+    finally:
+        remove_client()
+
 
 def main():
     try:
@@ -52,14 +70,26 @@ def main():
             except KeyboardInterrupt:
                 break
 
+def create_handshake_message(id_client):
+    handshake = Message_pb2.Handshake()
+    handshake.id = id_client
+    handshake.error = False
+    return handshake
+    
 def add_client():
     global user_counter
+    global id
+    
     lock.acquire()
+    id +=1
     user_counter += 1
     lock.release()
+    
+    return id
 
 def remove_client():
     global user_counter
+    
     lock.acquire()
     user_counter -= 1
     lock.release()
@@ -67,6 +97,6 @@ def remove_client():
 def get_clients_number():
     global user_counter
     return user_counter
-    
+
 if __name__ == "__main__":
     main()
