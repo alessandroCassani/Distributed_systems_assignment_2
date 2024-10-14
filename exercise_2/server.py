@@ -1,18 +1,20 @@
 import socket
 from sys import argv
 from threading import Thread
-import object_pb2
+import Object_pb2
 
 
 def handle_client(conn, addr):
     with conn:
         print(f"Connected by {addr}")
         while True:
+            object = Object_pb2.Object()
             data = conn.recv(1024)
-            print(f"Received: {data.decode()}")
-            if data == b"exit":
+            object.ParseFromString(data)
+            print(f"Received: {object}")
+            if object.msg == b"end":
                 break
-            conn.sendall(data)
+            conn.sendall(object.SerializeToString())
         print("Closing connection to {addr}")
 
 

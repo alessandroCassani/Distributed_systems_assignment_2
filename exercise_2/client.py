@@ -1,6 +1,6 @@
 import socket
 from sys import argv
-import object_pb2
+import Object_pb2
 
 
 def main():
@@ -21,19 +21,33 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
         print("Connected to the server")
+        
         while True:
             try:
-                data = input("Enter a message: ")
+                msg = input("insert message \n")
+                data = create_object(msg)
             except:
-                data = "end"
-            s.sendall(data.encode())
+                data = create_object('end')
+                
+            s.sendall(data.SerializeToString())
             print("Message sent")
-            if data == "end":
+            if data.msg == "end":
                 break
+            
+            obj = Object_pb2.Object()
             response = s.recv(1024)
-            print(f"Received: {response.decode()}")
+            obj.ParseFromString(response)
+            print(f"Received: {obj}")
         print("Closing connection")
 
 
+def create_object(msg):
+    obj = Object_pb2.Object()
+    obj.sender = 1
+    obj.receiver = 2
+    obj.msg = msg
+    return obj
+    
+    
 if __name__ == "__main__":
     main()
