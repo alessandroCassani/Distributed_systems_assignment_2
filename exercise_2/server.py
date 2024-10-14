@@ -3,7 +3,6 @@ from sys import argv
 from threading import Thread
 import Object_pb2
 
-
 def handle_client(conn, addr):
     with conn:
         print(f"Connected by {addr}")
