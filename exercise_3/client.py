@@ -22,9 +22,20 @@ def main():
         s.connect((host, port))
         print("Connected to the server")
         
+        handshake_response_data = s.recv(1024)
+        handshake_response = Message_pb2.Handshake()
+        handshake_response.ParseFromString(handshake_response_data)
+        
+        if handshake_response.error:
+            print("Handshake failed. Closing connection.")
+            return
+        else:
+            print(f"Handshake successful! Assigned ID: {handshake_response.id}")
+        
         while True:
             try:
-                data = create_object()
+                msg = input("insert message \n")
+                data = create_object(msg)
             except:
                 data = create_object('end')
                 
@@ -41,10 +52,11 @@ def main():
 
 
 def create_object(msg):
-    msg = Message_pb2.Message()
-    msg.id = None
-    msg.error = None
-    return msg
+    obj = Message_pb2.Object()
+    obj.sender = 1
+    obj.receiver = 2
+    obj.msg = msg
+    return obj
     
     
 if __name__ == "__main__":

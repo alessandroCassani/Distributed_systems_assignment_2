@@ -8,6 +8,7 @@ user_counter = 0
 
 
 def handle_client(conn, addr):
+    add_client()
     with conn:
         print(f"Connected by {addr}")
         while True:
@@ -47,7 +48,6 @@ def main():
         while True:
             try:
                 conn, addr = s.accept()
-                add_client()
                 Thread(target=handle_client, args=(conn, addr)).start()
             except KeyboardInterrupt:
                 break
