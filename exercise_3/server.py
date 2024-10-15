@@ -34,13 +34,13 @@ def handle_client(conn, addr):
                 object = Message_pb2.Object()
                 data = conn.recv(1024)
                 object.ParseFromString(data)
-                print(f"Received: {object}")
+                print(f"Received:\n{object}")
                 
                 if object.msg == CLOSE_COMMAND:
                     break
                 
                 conn.sendall(object.SerializeToString())
-                x
+        
             print(f"Closing connection to {addr}")
             
     except Exception as e:

@@ -13,12 +13,13 @@ def handle_client(conn, addr):
             data = conn.recv(1024)
             
             object.ParseFromString(data)
-            print(f"Received: {object}")
+            print(f"Received:\n{object}")
             
             if object.msg == CLOSE_COMMAND:
                 break
+            
             conn.sendall(object.SerializeToString())
-        print("Closing connection to {addr}")
+        print(f"Closing connection to {addr}")
 
 
 def main():

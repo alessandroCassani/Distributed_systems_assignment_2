@@ -2,6 +2,7 @@ import socket
 from sys import argv
 import Message_pb2
 
+CLOSE_COMMAND = 'end'
 
 def main():
     host = None
@@ -34,27 +35,41 @@ def main():
         
         while True:
             try:
-                msg = input("insert message \n")
-                data = create_object(msg)
-            except:
-                data = create_object('end')
+                data = create_object()
                 
-            s.sendall(data.SerializeToString())
-            print("Message sent")
-            if data.msg == "end":
+                if data.msg == CLOSE_COMMAND:
+                    s.sendall(data.SerializeToString()) 
+                    break
+                
+                s.sendall(data.SerializeToString())
+                print("Message sent")
+    
+                msg = Message_pb2.Object()
+                response = s.recv(1024)
+                msg.ParseFromString(response)
+                print(f"Received: {msg}")
+            
+            except Exception as e:
+                print(f"exception: {e}")
                 break
             
-            msg = Message_pb2.Object()
-            response = s.recv(1024)
-            msg.ParseFromString(response)
-            print(f"Received: {msg}")
         print("Closing connection")
 
 
-def create_object(msg):
+def create_object():
+    while True:
+        try:
+            sender = int(input("Enter sender (int64): "))
+            receiver = int(input("Enter receiver (int64): "))
+            break  
+        except ValueError:
+            print("Error: only int64")
+            
+    msg = input("insert message: \n")
+    
     obj = Message_pb2.Object()
-    obj.sender = 1
-    obj.receiver = 2
+    obj.sender = sender
+    obj.receiver = receiver
     obj.msg = msg
     return obj
     

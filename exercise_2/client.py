@@ -25,34 +25,41 @@ def main():
         
         while True:
             try:
-                msg = input("insert message: \n")
-                data = create_object(msg)
+                data = create_object()
                 
-                if msg == CLOSE_COMMAND:
-                    data = create_object(CLOSE_COMMAND)
+                if data.msg == CLOSE_COMMAND:
                     s.sendall(data.SerializeToString()) 
                     break       
             
-            except:
-                data = create_object(CLOSE_COMMAND)
-                s.sendall(data.SerializeToString()) 
-                break
-                
-            s.sendall(data.SerializeToString())
-            print("Message sent")
+                s.sendall(data.SerializeToString())
+                print("Message sent")
             
-            obj = Object_pb2.Object()
-            response = s.recv(1024)
-            obj.ParseFromString(response)
-            print(f"Received: {obj}")
+                obj = Object_pb2.Object()
+                response = s.recv(1024)
+                obj.ParseFromString(response)
+                print(f"Received: {obj}")
+            
+            except Exception as e:
+                print(f"exception: {e}")
+                break
         
         print("Connection closed")
 
 
-def create_object(msg):
+def create_object():
+    while True:
+        try:
+            sender = int(input("Enter sender (int64): "))
+            receiver = int(input("Enter receiver (int64): "))
+            break  
+        except ValueError:
+            print("Error: only int64")
+            
+    msg = input("insert message: \n")
+    
     obj = Object_pb2.Object()
-    obj.sender = 1
-    obj.receiver = 2
+    obj.sender = sender
+    obj.receiver = receiver
     obj.msg = msg
     return obj
     
