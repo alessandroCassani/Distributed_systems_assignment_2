@@ -3,6 +3,7 @@ from sys import argv
 from threading import Thread, Lock
 import Message_pb2
 
+CLOSE_COMMAND = 'end'
 NUM_USERS_COMMAND = "num_users"
 lock = Lock()
 user_counter = 0
@@ -35,11 +36,12 @@ def handle_client(conn, addr):
                 object.ParseFromString(data)
                 print(f"Received: {object}")
                 
-                if object.msg == b"end":
+                if object.msg == CLOSE_COMMAND:
                     break
                 
                 conn.sendall(object.SerializeToString())
-            print("Closing connection to {addr}")
+                x
+            print(f"Closing connection to {addr}")
             
     except Exception as e:
         print(f"Error occurred: {e}")

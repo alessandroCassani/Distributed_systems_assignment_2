@@ -3,6 +3,8 @@ from sys import argv
 from threading import Thread
 import Object_pb2
 
+CLOSE_COMMAND = 'end'
+
 def handle_client(conn, addr):
     with conn:
         print(f"Connected by {addr}")
@@ -13,7 +15,7 @@ def handle_client(conn, addr):
             object.ParseFromString(data)
             print(f"Received: {object}")
             
-            if object.msg == b"end":
+            if object.msg == CLOSE_COMMAND:
                 break
             conn.sendall(object.SerializeToString())
         print("Closing connection to {addr}")

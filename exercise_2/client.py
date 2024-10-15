@@ -25,7 +25,7 @@ def main():
         
         while True:
             try:
-                msg = input("insert message \n")
+                msg = input("insert message: \n")
                 data = create_object(msg)
                 
                 if msg == CLOSE_COMMAND:
