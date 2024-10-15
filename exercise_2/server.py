@@ -9,8 +9,10 @@ def handle_client(conn, addr):
         while True:
             object = Object_pb2.Object()
             data = conn.recv(1024)
+            
             object.ParseFromString(data)
             print(f"Received: {object}")
+            
             if object.msg == b"end":
                 break
             conn.sendall(object.SerializeToString())
@@ -28,6 +30,7 @@ def main():
         print(f"Server started on port {port}")
         print("Waiting for a client...")
         s.listen()
+        
         while True:
             try:
                 conn, addr = s.accept()
@@ -35,6 +38,6 @@ def main():
             except KeyboardInterrupt:
                 break
 
-
 if __name__ == "__main__":
     main()
+    

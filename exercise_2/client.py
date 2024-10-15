@@ -2,6 +2,7 @@ import socket
 from sys import argv
 import Object_pb2
 
+CLOSE_COMMAND = 'end'
 
 def main():
     host = None
@@ -26,19 +27,26 @@ def main():
             try:
                 msg = input("insert message \n")
                 data = create_object(msg)
+                
+                if msg == CLOSE_COMMAND:
+                    data = create_object(CLOSE_COMMAND)
+                    s.sendall(data.SerializeToString()) 
+                    break       
+            
             except:
-                data = create_object('end')
+                data = create_object(CLOSE_COMMAND)
+                s.sendall(data.SerializeToString()) 
+                break
                 
             s.sendall(data.SerializeToString())
             print("Message sent")
-            if data.msg == "end":
-                break
             
             obj = Object_pb2.Object()
             response = s.recv(1024)
             obj.ParseFromString(response)
             print(f"Received: {obj}")
-        print("Closing connection")
+        
+        print("Connection closed")
 
 
 def create_object(msg):
