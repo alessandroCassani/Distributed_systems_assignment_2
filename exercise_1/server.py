@@ -17,7 +17,7 @@ def handle_client(conn, addr):
             if data == b"end":
                 break
             conn.sendall(data)
-        print("Closing connection to {addr}")
+        print(f"Closing connection to {addr}")
      
     remove_client()
         
