@@ -44,11 +44,13 @@ def main():
         print(f"Server started on port {port}")
         print("Waiting for a client...")
         s.listen()
-        Thread(target=server_operator, args =()).start()
+        
+        Thread(target=server_operator, daemon=True).start()
+        
         while True:
             try:
                 conn, addr = s.accept()
-                Thread(target=handle_client, args=(conn, addr)).start()
+                Thread(target=handle_client, args=(conn, addr), daemon=True).start()
             except KeyboardInterrupt:
                 break
 
